@@ -51,6 +51,9 @@ main table.table td, main table.table th { vertical-align: top; }
 | Root finding (bisection, false position, bracketing) | `bisection`, `false_position`, `all_roots_bracketing` | `bisection`, `false_position`, `all_roots_bracketing` | [2E](02-odes/02e-bifurcation.qmd) |
 | Root finding via library | `rootSolve::uniroot.all` | `scipy.optimize.fsolve` | [2E](02-odes/02e-bifurcation.qmd) |
 | Newton's method and arc-length continuation | `find_root_Newton`, `contour_segment_bilinear` | `find_root_Newton`, `contour_segment_bilinear` | [2F](02-odes/02f-bifurcation-curves.qmd) |
+| Discrete-time iteration (difference equations) | `iterate_map`, `logistic_map` | `iterate_map`, `logistic_map` | [2G](02-odes/02g-difference-equations.qmd) |
+| Cobweb plot for a scalar map | `cobweb` | `cobweb` | [2G](02-odes/02g-difference-equations.qmd) |
+| Period-doubling bifurcation diagram | `bifurcation` | `bifurcation` | [2G](02-odes/02g-difference-equations.qmd) |
 | Compiled ODE right-hand side (Fortran) | `.Fortran` / `dyn.load` | `ctypes` | [2B](02-odes/02b-numerical-integration.qmd) |
 
 ## Phase-plane analysis (Part 3)

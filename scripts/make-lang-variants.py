@@ -20,7 +20,7 @@ with the author. Display-only listings are treated by language just like executa
 chunks: ```r / ```python (no braces) are dropped from the other language's variant,
 while shared ones (```bash / ```sh / ```fortran, or a plain fence) are kept in both. Eligibility is decided purely by content: any page carrying both
 a `### R implementation` and a `### Python implementation` heading gets variants, including
-exercises pages (1D, 2G); pages with only one language, or none, get none. Idempotent and fast.
+exercises pages (1D, 2H); pages with only one language, or none, get none. Idempotent and fast.
 """
 import os
 import re

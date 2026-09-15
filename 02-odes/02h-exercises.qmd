@@ -1,10 +1,10 @@
 ---
-title: "2G. Exercises"
+title: "2H. Exercises"
 author: "Mingyang Lu"
 old_id: "02F"
 ---
 
-## 2G.1 Adams-Bashforth method
+## 2H.1 Adams-Bashforth method
 
 The Adams-Bashforth method is a two-step scheme for integrating a single-variable ODE for $N(t)$. Each iteration uses two known points, $(t_n, N_n)$ and $(t_{n+1}, N_{n+1})$, to compute $(t_{n+2}, N_{n+2})$:
 
@@ -26,11 +26,11 @@ $$ \frac{df(X, t)}{dt} = \frac{\partial f}{\partial t} + \frac{\partial f}{\part
 
   (2) the CPU time for each step size (for example with `microbenchmark` in R or `timeit` in Python).
 
-## 2G.2 Fourth-order Runge-Kutta
+## 2H.2 Fourth-order Runge-Kutta
 
 [Part 2B](02b-numerical-integration.qmd) (Section 2B.6) gives a more accurate integrator, the fourth-order Runge-Kutta method (RK4). Prove the method and determine its order of accuracy in terms of $O(\Delta t)$.
 
-## 2G.3 Hysteresis
+## 2H.3 Hysteresis
 
 Consider a circuit with one self-activating gene,
 
@@ -44,7 +44,7 @@ Here we explore **hysteresis**, where the system's state depends on its history.
 
 **(3)** Plot $X(k)$ for the two trajectories together with the bifurcation diagram from [Part 2E](02e-bifurcation.qmd) or [Part 2F](02f-bifurcation-curves.qmd). Briefly describe what you observe.
 
-## 2G.4 Another bifurcation
+## 2H.4 Another bifurcation
 
 Consider a gene-circuit model related to the one in [Part 2E](02e-bifurcation.qmd),
 
@@ -52,7 +52,7 @@ $$ \frac{dX}{dt} = f(X, g) = 10 + g\frac{X^4}{X^4 + 200^4} - 0.15\,X , $$
 
 where $g$ is the control parameter, ranging over $(0, 100)$. Plot the bifurcation diagram of the steady-state $X$ as a function of $g$, using any method from [Part 2E](02e-bifurcation.qmd) or [Part 2F](02f-bifurcation-curves.qmd).
 
-## 2G.5 The Spruce Budworm model
+## 2H.5 The Spruce Budworm model
 
 The spruce budworm, an insect of the spruce-fir forests of the USA and Canada, usually stays at low population levels, but intermittent surges cause severe forest damage. In isolation its intrinsic growth follows the logistic model; predation by birds adds a second term, giving
 
@@ -66,7 +66,7 @@ Use growth rate $r = 0.2$, carrying capacity $K = 1000$, and predation half-satu
 
 **(3) Bifurcation diagram.** Explore the bifurcation diagram by varying the predation parameter $\rho$ from 0 to 100. Plot the steady-state $N$ against $\rho$ and mark the stable and unstable branches. Aim for a diagram like the one below; you may use any numerical method from Parts 2E and 2F.
 
-![](images/02g/budworm-bifurcation.png){width=70% fig-align="center"}
+![](images/02h/budworm-bifurcation.png){width=70% fig-align="center"}
 
 **(4) Parameter-varying dynamics.** Now let $\rho$ oscillate in time as a sinusoid rather than staying constant. The code below generates such a $\rho(t)$ signal (oscillation period 50, mean 60, amplitude 20).
 

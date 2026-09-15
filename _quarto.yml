@@ -43,7 +43,8 @@ book:
         - 02-odes/02d-effective-potential.qmd
         - 02-odes/02e-bifurcation.qmd
         - 02-odes/02f-bifurcation-curves.qmd
-        - 02-odes/02g-exercises.qmd
+        - 02-odes/02g-difference-equations.qmd
+        - 02-odes/02h-exercises.qmd
     - part: "Part 3: Phase plane"
       chapters:
         - 03-phase-plane/03a-nullclines.qmd

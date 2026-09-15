@@ -1,0 +1,480 @@
+---
+title: "2G. Difference equations and discrete-time dynamics"
+author: "Mingyang Lu"
+code-tools: true
+---
+
+Every model so far in this part has treated time as continuous. But many biological systems are naturally observed in *steps*: an annual plant that reproduces once a season, an insect with non-overlapping generations, a synchronized cell culture where one step is one division, or simply an experiment sampled at fixed intervals. For these, the natural model is a **difference equation**, which specifies a rule that maps the state at one step to the state at the next.
+
+This chapter works through the discrete-time counterparts of the growth models in [Part 2C](02c-bacterial-growth.qmd), and then shows something that cannot happen in the one-dimensional ODEs of this part: with a single variable and a single parameter, a difference equation can oscillate, settle into cycles of any period, and become chaotic. The treatment follows Sontag's lecture notes [@sontag_systemsbio]; the period-doubling route to chaos is the classic result of May [@may1976].
+
+## 2G.1 Iterating a map
+
+A scalar difference equation is a rule that gives the next state in terms of the current one,
+
+\begin{equation}
+P_{t+1} = F(P_t) , \qquad t = 0, 1, 2, \dots \tag{1}
+\end{equation}
+
+so that starting from an initial state $P_0$ we obtain $P_1 = F(P_0)$, $P_2 = F(F(P_0))$, and in general $P_t = F^t(P_0)$, where the superscript denotes repeated composition, not a power. Whenever $t$ is clear from context we drop it and write $P^+ = F(P)$, reading the superscript as "step the index up by one".
+
+It is often more intuitive to specify not the next state but the *change*,
+
+\begin{equation}
+\Delta P_t := P_{t+1} - P_{t} . \tag{2}
+\end{equation}
+
+The two forms carry exactly the same information, since $P^+ = P + \Delta P$. The $\Delta$ form is the one that connects to the ODEs of this part: dividing by the step size and shrinking it gives $dP/dt$.
+
+As in [Part 2C](02c-bacterial-growth.qmd), start with births and deaths. If each step adds a multiple $f$ of the population and removes a fraction $d$, then $\Delta P = (f - d)P$, and therefore
+
+\begin{equation}
+P^+ = \lambda P , \qquad \lambda = 1 + f - d , \tag{3}
+\end{equation}
+
+where $\lambda$ is the growth rate. This is the discrete analogue of exponential growth, and it is the one model in this chapter with an analytical solution, $P_t = \lambda^t P_0$. The population grows when $\lambda > 1$, decays when $\lambda < 1$, and holds steady when $\lambda = 1$.
+
+::: {.callout-note title="Recipe 2G.1.1"}
+**Objective.** Iterate a scalar map and confirm the analytical solution of the linear growth model.
+
+**Model.** A population multiplied by a constant growth rate each step: `P_next = lambda*P`, with exact solution `P_t = lambda^t * P0`.
+
+**Method.** Direct iteration of the map in a loop.
+
+**Test.** lambda = 1.08, P0 = 100, for t = 0 to 40; also lambda = 1 and lambda = 0.92.
+
+**Show.** The three trajectories on one set of axes, with the exact solution overlaid as points.
+
+**Verification.** The iterated values coincide with `100*1.08^t` to machine precision; the three curves grow, stay flat, and decay respectively.
+:::
+
+### R implementation {.impl}
+
+```{r}
+# iterate an arbitrary map F for n steps, returning P[0..n]
+iterate_map <- function(F, P0, n, ...) {
+  P <- numeric(n + 1); P[1] <- P0
+  for (i in 1:n) P[i + 1] <- F(P[i], ...)
+  P
+}
+
+linear_map <- function(P, lambda) lambda * P     # Equation (3)
+
+t <- 0:40
+P_grow  <- iterate_map(linear_map, 100, 40, lambda = 1.08)
+P_flat  <- iterate_map(linear_map, 100, 40, lambda = 1.00)
+P_decay <- iterate_map(linear_map, 100, 40, lambda = 0.92)
+
+plot(t, P_grow, type = "l", col = 2, ylim = c(0, 2200),
+     xlab = "t", ylab = expression(P[t]))
+lines(t, P_flat,  col = 3)
+lines(t, P_decay, col = 4)
+points(t, 100 * 1.08^t, pch = 1, cex = 0.6)   # exact solution
+legend("topleft", inset = 0.02, cex = 0.8,
+       legend = c("lambda = 1.08", "lambda = 1", "lambda = 0.92", "exact"),
+       col = c(2, 3, 4, 1), lty = c(1, 1, 1, NA), pch = c(NA, NA, NA, 1))
+```
+
+```{r}
+max(abs(P_grow - 100 * 1.08^t))    # iteration matches the analytical solution
+```
+
+### Python implementation {.impl}
+
+```{python}
+# iterate an arbitrary map F for n steps, returning P[0..n]
+import numpy as np
+import matplotlib.pyplot as plt
+
+def iterate_map(F, P0, n, **kw):
+    P = np.zeros(n + 1); P[0] = P0
+    for i in range(n):
+        P[i + 1] = F(P[i], **kw)
+    return P
+
+def linear_map(P, lam):                # Equation (3)
+    return lam * P
+
+t = np.arange(0, 41)
+P_grow  = iterate_map(linear_map, 100, 40, lam=1.08)
+P_flat  = iterate_map(linear_map, 100, 40, lam=1.00)
+P_decay = iterate_map(linear_map, 100, 40, lam=0.92)
+
+plt.plot(t, P_grow,  color="red",   label="lambda = 1.08")
+plt.plot(t, P_flat,  color="green", label="lambda = 1")
+plt.plot(t, P_decay, color="blue",  label="lambda = 0.92")
+plt.plot(t, 100 * 1.08**t, "o", color="black", markersize=3, label="exact")
+plt.ylim(0, 2200)
+plt.xlabel("t"); plt.ylabel("P(t)")
+plt.legend(loc="upper left", fontsize=8)
+plt.show()
+```
+
+```{python}
+np.max(np.abs(P_grow - 100 * 1.08**t))   # iteration matches the analytical solution
+```
+
+## 2G.2 The discrete logistic model
+
+Unlimited growth is unrealistic for the same reason it was in [Part 2C](02c-bacterial-growth.qmd): resources are finite. Following the same logic, we require the *per-capita* growth $\Delta P / P$ to fall as $P$ rises, becoming negative beyond a carrying capacity $K$. The simplest such function is linear, $\Delta P / P = r(1 - P/K)$, which gives the discrete logistic model
+
+\begin{equation}
+P^+ = P\left[\,1 + r\left(1 - \frac{P}{K}\right)\right] . \tag{4}
+\end{equation}
+
+When $P \ll K$ the bracket is close to $1 + r$, so the model reduces to Equation (3) with $\lambda = 1 + r$: far below carrying capacity, logistic growth is indistinguishable from exponential growth. Unlike its continuous counterpart, Equation (4) has no analytical solution, so we would perform the simulation by iterations.
+
+::: {.callout-note title="Recipe 2G.2.1"}
+**Objective.** Iterate the discrete logistic model and compare it against exponential growth at small population size.
+
+**Model.** Discrete logistic growth: `P_next = P*(1 + r*(1 - P/K))`.
+
+**Method.** Direct iteration of the map.
+
+**Test.** r = 0.7, K = 10, P0 = 0.4346, for t = 0 to 20.
+
+**Show.** The logistic trajectory with the carrying capacity marked, and the exponential model `lambda = 1 + r` overlaid.
+
+**Verification.** The trajectory is sigmoidal and levels off at `K = 10`; it tracks the exponential curve closely while `P` is far below `K`, then falls away from it.
+:::
+
+### R implementation {.impl}
+
+```{r}
+logistic_map <- function(P, r, K) P * (1 + r * (1 - P / K))   # Equation (4)
+
+r <- 0.7; K <- 10; P0 <- 0.4346
+t <- 0:20
+P_log <- iterate_map(logistic_map, P0, 20, r = r, K = K)
+
+plot(t, P_log, type = "b", col = 4, pch = 16, cex = 0.7, ylim = c(0, 12),
+     xlab = "t", ylab = expression(P[t]))
+abline(h = K, col = 8, lty = 2)                   # carrying capacity
+lines(t, P0 * (1 + r)^t, col = 2)                 # exponential growth, lambda = 1 + r
+legend("bottomright", inset = 0.02, cex = 0.8,
+       legend = c("logistic", "exponential", "K"),
+       col = c(4, 2, 8), lty = c(1, 1, 2), pch = c(16, NA, NA))
+```
+
+### Python implementation {.impl}
+
+```{python}
+def logistic_map(P, r, K):             # Equation (4)
+    return P * (1 + r * (1 - P / K))
+
+r, K, P0 = 0.7, 10, 0.4346
+t = np.arange(0, 21)
+P_log = iterate_map(logistic_map, P0, 20, r=r, K=K)
+
+plt.plot(t, P_log, "-o", color="blue", markersize=4, label="logistic")
+plt.plot(t, P0 * (1 + r)**t, color="red", label="exponential")
+plt.axhline(K, color="grey", linestyle="--", label="K")
+plt.ylim(0, 12)
+plt.xlabel("t"); plt.ylabel("P(t)")
+plt.legend(loc="lower right", fontsize=8)
+plt.show()
+```
+
+## 2G.3 Cobwebbing
+
+The most useful qualitative tool for a scalar map is the **cobweb plot**. Graph $P^+ = F(P)$ together with the diagonal $P^+ = P$, and start at $(P_0, P_0)$ on the diagonal. Then repeat two moves: go *vertically to the curve*, which reads off $P_1 = F(P_0)$, and *horizontally to the diagonal*, which relocates $P_1$ onto the horizontal axis ready for the next step. The resulting staircase or spiral shows at a glance where the trajectory goes.
+
+::: {.callout-note title="Recipe 2G.3.1"}
+**Objective.** Build a reusable cobweb plot for a scalar map and read off the long-run behavior.
+
+**Model.** Discrete logistic growth, Equation (4), with r = 0.7 and K = 10.
+
+**Method.** Plot the map and the diagonal, then alternate vertical segments to the curve with horizontal segments to the diagonal.
+
+**Test.** Two initial conditions, P0 = 2.3 (below K) and P0 = 18 (above K), 12 steps each.
+
+**Show.** Two cobweb diagrams with the fixed points marked where the curve crosses the diagonal.
+
+**Verification.** Both trajectories converge on the crossing at `P = 10`; from `P0 = 2.3` the cobweb is a monotone staircase, while from `P0 = 18` it overshoots below `K` once before recovering.
+:::
+
+### R implementation {.impl}
+
+```{r}
+# draw a cobweb diagram for the map F starting from P0
+cobweb <- function(F, P0, n, xmax, ..., main = "") {
+  x <- seq(0, xmax, length.out = 400)
+  plot(x, F(x, ...), type = "l", col = 4, lwd = 2, xlim = c(0, xmax),
+       ylim = c(0, xmax), xlab = expression(P[t]), ylab = expression(P[t+1]),
+       main = main)
+  lines(x, x, col = 8, lty = 2)               # the diagonal
+  P <- P0
+  for (i in 1:n) {
+    Pn <- F(P, ...)
+    segments(P, P,  P,  Pn, col = 2)          # vertical, to the curve
+    segments(P, Pn, Pn, Pn, col = 2)          # horizontal, to the diagonal
+    P <- Pn
+  }
+}
+```
+
+```{r}
+#| rmar: false
+#| fig-width: 10
+#| fig-height: 5
+par(mfrow = c(1, 2))
+cobweb(logistic_map, 2.3, 12, 16, r = 0.7, K = 10, main = "P0 = 2.3")
+cobweb(logistic_map, 18,  12, 22, r = 0.7, K = 10, main = "P0 = 18")
+par(mfrow = c(1, 1))
+```
+
+### Python implementation {.impl}
+
+```{python}
+# draw a cobweb diagram for the map F starting from P0
+def cobweb(ax, F, P0, n, xmax, title="", **kw):
+    x = np.linspace(0, xmax, 400)
+    ax.plot(x, F(x, **kw), color="blue", lw=2)
+    ax.plot(x, x, color="grey", linestyle="--")     # the diagonal
+    P = P0
+    for _ in range(n):
+        Pn = F(P, **kw)
+        ax.plot([P, P],  [P, Pn],  color="red")     # vertical, to the curve
+        ax.plot([P, Pn], [Pn, Pn], color="red")     # horizontal, to the diagonal
+        P = Pn
+    ax.set_xlim(0, xmax); ax.set_ylim(0, xmax)
+    ax.set_xlabel("P(t)"); ax.set_ylabel("P(t+1)"); ax.set_title(title)
+```
+
+```{python}
+#| fig-width: 10
+#| fig-height: 5
+fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+cobweb(axs[0], logistic_map, 2.3, 12, 16, title="P0 = 2.3", r=0.7, K=10)
+cobweb(axs[1], logistic_map, 18,  12, 22, title="P0 = 18",  r=0.7, K=10)
+plt.tight_layout()
+plt.show()
+```
+
+Starting well above the carrying capacity, the map can send the population to a *negative* value in one step, which is biologically nonsense and a reminder that Equation (4) is only meaningful over a limited range of $P$. One common repair is to truncate the parabola at zero, interpreting it as extinction.
+
+::: {.callout-note title="Practice Q1"}
+Use the `cobweb` function to explore what happens when the initial population is far above the carrying capacity. With $r = 0.7$ and $K = 10$, find (by trial) the smallest integer $P_0$ for which the trajectory goes negative within the first three steps. Then modify `logistic_map` so that negative values are clamped to zero, and confirm that the repaired model sends such trajectories to extinction rather than to $-\infty$. Edit this page's source (see the tip above) to add your code.
+:::
+
+## 2G.4 Fixed points and stability
+
+A **fixed point** (equivalently a steady state or equilibrium) of $P^+ = F(P)$ is a value $P^*$ that the map leaves unchanged,
+
+\begin{equation}
+F(P^*) = P^* , \tag{5}
+\end{equation}
+
+or equivalently a value at which $\Delta P = 0$. Graphically these are exactly the points where the curve crosses the diagonal in a cobweb plot, which is why the crossings were worth marking. For the logistic map, solving Equation (5) gives $P^* = 0$ and $P^* = K$.
+
+To decide whether a fixed point attracts or repels nearby trajectories, track the deviation $p_t := P_t - P^*$. Since $p_{t+1} = F(P^* + p_t) - F(P^*)$, the definition of the derivative gives, for small $p_t$,
+
+\begin{equation}
+p_{t+1} \approx F'(P^*)\, p_t . \tag{6}
+\end{equation}
+
+So the deviation is multiplied by $F'(P^*)$ at every step, and the criterion is immediate: the fixed point is **stable** if $|F'(P^*)| < 1$ and **unstable** if $|F'(P^*)| > 1$. When $|F'(P^*)| = 1$ the linearization gives no verdict and higher-order terms decide.
+
+The *sign* of $F'(P^*)$ matters too, and it controls something the magnitude does not. If $0 < F'(P^*) < 1$ the deviation keeps its sign and the approach is monotone; if $-1 < F'(P^*) < 0$ the deviation flips sign every step and the approach is a damped oscillation. For the logistic map, $F'(P) = 1 + r - 2rP/K$, so
+
+$$F'(0) = 1 + r , \qquad F'(K) = 1 - r .$$
+
+The origin is therefore unstable for every $r > 0$, while $P^* = K$ is stable precisely when $|1 - r| < 1$, that is when $0 < r < 2$: monotonically for $r < 1$, and by damped oscillation for $1 < r < 2$.
+
+::: {.callout-note title="Recipe 2G.4.1"}
+**Objective.** Classify the fixed points of the logistic map by linearization, and show the two ways a stable fixed point can be approached.
+
+**Model.** Discrete logistic growth, Equation (4), with K = 1 and derivative `F'(P) = 1 + r - 2*r*P/K`.
+
+**Method.** Evaluate the linearization at each fixed point and compare `|F'|` against 1; then iterate and cobweb both regimes.
+
+**Test.** r = 0.5 (so `F'(K) = 0.5`) and r = 1.9 (so `F'(K) = -0.9`), both from the same P0 = 1.4.
+
+**Show.** Trajectories and cobwebs side by side for the two values of r.
+
+**Verification.** Both converge to `P = 1` since `|F'| < 1` in each case; r = 0.5 decreases monotonically from above with no overshoot, while r = 1.9 overshoots on the first step and spirals in, alternating above and below the fixed point.
+:::
+
+### R implementation {.impl}
+
+```{r}
+# the linearization of the logistic map, and its value at each fixed point
+dlogistic <- function(P, r, K) 1 + r - 2 * r * P / K
+
+for (r_i in c(0.5, 1.9, 2.4)) {
+  cat("r =", r_i,
+      " F'(0) =",  dlogistic(0, r_i, 1),
+      " F'(K) =",  dlogistic(1, r_i, 1),
+      " -> K is", ifelse(abs(dlogistic(1, r_i, 1)) < 1, "stable", "unstable"), "\n")
+}
+```
+
+```{r}
+#| rmar: false
+#| fig-width: 10
+#| fig-height: 8
+# same P0, two values of r: monotone approach versus damped oscillation
+par(mfrow = c(2, 2))
+for (r_i in c(0.5, 1.9)) {
+  P <- iterate_map(logistic_map, 1.4, 20, r = r_i, K = 1)
+  plot(0:20, P, type = "b", col = 4, pch = 16, cex = 0.7, ylim = c(0, 1.6),
+       xlab = "t", ylab = expression(P[t]), main = paste("r =", r_i))
+  abline(h = 1, col = 8, lty = 2)
+  cobweb(logistic_map, 1.4, 20, 2, r = r_i, K = 1,
+         main = paste("r =", r_i))
+}
+par(mfrow = c(1, 1))
+```
+
+### Python implementation {.impl}
+
+```{python}
+# the linearization of the logistic map, and its value at each fixed point
+def dlogistic(P, r, K):
+    return 1 + r - 2 * r * P / K
+
+for r_i in (0.5, 1.9, 2.4):
+    fK = dlogistic(1, r_i, 1)
+    print(f"r = {r_i}  F'(0) = {dlogistic(0, r_i, 1):.2f}  F'(K) = {fK:.2f}"
+          f"  -> K is {'stable' if abs(fK) < 1 else 'unstable'}")
+```
+
+```{python}
+#| fig-width: 10
+#| fig-height: 8
+# same P0, two values of r: monotone approach versus damped oscillation
+fig, axs = plt.subplots(2, 2, figsize=(10, 8))
+for row, r_i in enumerate((0.5, 1.9)):
+    P = iterate_map(logistic_map, 1.4, 20, r=r_i, K=1)
+    axs[row, 0].plot(np.arange(21), P, "-o", color="blue", markersize=4)
+    axs[row, 0].axhline(1, color="grey", linestyle="--")
+    axs[row, 0].set_ylim(0, 1.6)
+    axs[row, 0].set_xlabel("t"); axs[row, 0].set_ylabel("P(t)")
+    axs[row, 0].set_title(f"r = {r_i}")
+    cobweb(axs[row, 1], logistic_map, 1.4, 20, 2, title=f"r = {r_i}", r=r_i, K=1)
+plt.tight_layout()
+plt.show()
+```
+
+::: {.callout-note title="Practice Q2"}
+The stability test says nothing when $|F'(P^*)| = 1$. Consider the two maps $F(P) = P + P^3$ and $F(P) = P - P^3$, both of which have a fixed point at $P^* = 0$ with $F'(0) = 1$.
+
+(a) Cobweb each map on a small interval around the origin, starting from $P_0 = 0.1$ and from $P_0 = -0.1$.
+
+(b) Which fixed point is stable, which is unstable, and which is neither? Explain why the linearization could not have told you.
+
+Edit this page's source (see the tip above) to add your code.
+:::
+
+## 2G.5 Period doubling and chaos
+
+Once $r > 2$ we have $F'(K) < -1$, so the carrying capacity is no longer stable. The trajectory does not run away (the nonlinearity keeps it bounded), so it must do something else. What it does is settle into a **period-2 cycle**, alternating between two values forever.
+
+A period-2 orbit is a fixed point of the map applied twice, so it satisfies $F(F(P)) = P$. The fixed points of $F$ solve this too, so after dividing them out the remaining roots give the cycle. For $r = 2.4$ and $K = 1$ the cycle is $(11 \pm \sqrt{11})/12$, approximately $0.6403$ and $1.1931$.
+
+Increasing $r$ further, the 2-cycle itself destabilizes into a 4-cycle, then an 8-cycle, and so on. These successive **period-doubling bifurcations** accumulate at a finite value of $r$, beyond which the trajectory never repeats: the system is **chaotic**. This cascade is the subject of May's classic paper on simple models with complicated dynamics [@may1976], and it is made visible by a bifurcation diagram, built exactly as in [Part 2E](02e-bifurcation.qmd): for each $r$, iterate long enough to discard the transient, then plot the values that remain.
+
+::: {.callout-note title="Recipe 2G.5.1"}
+**Objective.** Trace the period-doubling route to chaos in the logistic map, and demonstrate sensitivity to initial conditions.
+
+**Model.** Discrete logistic growth, Equation (4), with K = 1 and r as the control parameter.
+
+**Method.** For each r, iterate past the transient and collect the remaining values; separately, iterate two nearby initial conditions in the chaotic regime and compare.
+
+**Test.** r from 1.8 to 2.8 for the diagram; r = 2.75 with P0 = 0.300 and P0 = 0.301 for the sensitivity test.
+
+**Show.** A bifurcation diagram over r, and the two nearly identical trajectories superimposed.
+
+**Verification.** The diagram shows one branch below r = 2, splitting to 2 near r = 2, to 4 near r = 2.45, to 8 near r = 2.55, and smearing into a band past r = 2.57. The two trajectories track each other for roughly ten steps and then diverge completely, despite obeying the same deterministic rule.
+:::
+
+### R implementation {.impl}
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+# for each r: iterate past the transient, then keep the remaining values
+bifurcation <- function(r_all, P0 = 0.35, n_trans = 500, n_keep = 150) {
+  out_r <- numeric(0); out_P <- numeric(0)
+  for (r_i in r_all) {
+    P <- P0
+    for (i in 1:n_trans) P <- logistic_map(P, r_i, 1)
+    keep <- numeric(n_keep)
+    for (i in 1:n_keep) { P <- logistic_map(P, r_i, 1); keep[i] <- P }
+    out_r <- c(out_r, rep(r_i, n_keep)); out_P <- c(out_P, keep)
+  }
+  cbind(out_r, out_P)
+}
+
+bif <- bifurcation(seq(1.8, 2.8, length.out = 800))
+plot(bif[, 1], bif[, 2], pch = ".", col = 4,
+     xlab = "r", ylab = "long-run values of P")
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+# sensitivity to initial conditions in the chaotic regime
+Pa <- iterate_map(logistic_map, 0.300, 45, r = 2.75, K = 1)
+Pb <- iterate_map(logistic_map, 0.301, 45, r = 2.75, K = 1)
+
+plot(0:45, Pa, type = "l", col = 4, ylim = c(0, 1.4),
+     xlab = "t", ylab = expression(P[t]))
+lines(0:45, Pb, col = 2, lty = 2)
+legend("bottomleft", inset = 0.02, cex = 0.8, horiz = TRUE,
+       legend = c("P0 = 0.300", "P0 = 0.301"), col = c(4, 2), lty = c(1, 2))
+```
+
+### Python implementation {.impl}
+
+```{python}
+#| fig-width: 8
+#| fig-height: 5
+# for each r: iterate past the transient, then keep the remaining values
+def bifurcation(r_all, P0=0.35, n_trans=500, n_keep=150):
+    out_r, out_P = [], []
+    for r_i in r_all:
+        P = P0
+        for _ in range(n_trans):
+            P = logistic_map(P, r_i, 1)
+        for _ in range(n_keep):
+            P = logistic_map(P, r_i, 1)
+            out_r.append(r_i); out_P.append(P)
+    return np.array(out_r), np.array(out_P)
+
+br, bP = bifurcation(np.linspace(1.8, 2.8, 800))
+plt.plot(br, bP, ",", color="blue")
+plt.xlabel("r"); plt.ylabel("long-run values of P")
+plt.show()
+```
+
+```{python}
+#| fig-width: 8
+#| fig-height: 5
+# sensitivity to initial conditions in the chaotic regime
+Pa = iterate_map(logistic_map, 0.300, 45, r=2.75, K=1)
+Pb = iterate_map(logistic_map, 0.301, 45, r=2.75, K=1)
+
+plt.plot(np.arange(46), Pa, color="blue", label="P0 = 0.300")
+plt.plot(np.arange(46), Pb, color="red", linestyle="--", label="P0 = 0.301")
+plt.ylim(0, 1.4)
+plt.xlabel("t"); plt.ylabel("P(t)")
+plt.legend(loc="lower left", ncol=2, fontsize=8)
+plt.show()
+```
+
+Both trajectories from the second plot come from the same one-line deterministic formula, and each is perfectly reproducible. They differ only in the fourth digit of the initial condition, and that difference is amplified at every step until the two are unrelated. This is *sensitive dependence on initial conditions*, the defining feature of chaos and the reason long-range prediction fails for such systems even when the model is known exactly.
+
+It is worth pausing on how little machinery was needed. Everything in this chapter came from a single variable and a single parameter. The one-dimensional ODEs of [Part 2C](02c-bacterial-growth.qmd) cannot oscillate at all, let alone become chaotic. This is because a continuous trajectory on a line cannot get past a fixed point, so it can only rise or fall toward one. Discretizing time removes that constraint, because each step can jump over the fixed point rather than creep up to it. Chaos in continuous time requires at least three dimensions; in discrete time, one is enough.
+
+::: {.callout-note title="Practice Q3"}
+Use the bifurcation diagram to locate the cascade quantitatively.
+
+(a) Modify `bifurcation` to return the number of *distinct* long-run values for a given $r$ (round to about 5 decimals before counting, so that numerically identical points are not double-counted). Use it to find the period at $r = 2.2$, $2.45$, $2.56$, and $2.7$.
+
+(b) By narrowing the range of $r$, estimate the value at which the 2-cycle first becomes a 4-cycle, and the value at which the 4-cycle becomes an 8-cycle.
+
+(c) Re-plot the bifurcation diagram over a narrow window such as $r \in [2.55, 2.60]$. What do you notice about the structure inside the chaotic band?
+
+Edit this page's source (see the tip above) to add your code.
+:::
