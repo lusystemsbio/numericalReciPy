@@ -223,7 +223,12 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./02-odes/02g-exercises.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">2G. Exercises</span></a>
+  <a href="./02-odes/02g-difference-equations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">2G. Difference equations and discrete-time dynamics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-odes/02h-exercises.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">2H. Exercises</span></a>
   </div>
 </li>
       </ul>
@@ -736,6 +741,24 @@ main table.table td, main table.table th { vertical-align: top; }
 <td style="text-align: center;"><a href="./02-odes/02f-bifurcation-curves.html">2F</a></td>
 </tr>
 <tr class="even">
+<td>Discrete-time iteration (difference equations)</td>
+<td><code>iterate_map</code>, <code>logistic_map</code></td>
+<td><code>iterate_map</code>, <code>logistic_map</code></td>
+<td style="text-align: center;"><a href="./02-odes/02g-difference-equations.html">2G</a></td>
+</tr>
+<tr class="odd">
+<td>Cobweb plot for a scalar map</td>
+<td><code>cobweb</code></td>
+<td><code>cobweb</code></td>
+<td style="text-align: center;"><a href="./02-odes/02g-difference-equations.html">2G</a></td>
+</tr>
+<tr class="even">
+<td>Period-doubling bifurcation diagram</td>
+<td><code>bifurcation</code></td>
+<td><code>bifurcation</code></td>
+<td style="text-align: center;"><a href="./02-odes/02g-difference-equations.html">2G</a></td>
+</tr>
+<tr class="odd">
 <td>Compiled ODE right-hand side (Fortran)</td>
 <td><code>.Fortran</code> / <code>dyn.load</code></td>
 <td><code>ctypes</code></td>
@@ -1281,7 +1304,7 @@ main table.table td, main table.table th { vertical-align: top; }
      (shared concept text, shared post-Python discussion) is never tagged, so it stays
      visible in every mode. The choice persists across chapters via localStorage. The
      switch appears on any genuinely dual-language page (both languages present),
-     including exercises pages that carry paired implementations (1D, 2G); pages with
+     including exercises pages that carry paired implementations (1D, 2H); pages with
      no `.impl` headings, or only one language, get no switch. Single-language SOURCE
      copies for practice are a separate, local mechanism (scripts/make-lang-variants.py
      writes them beside each chapter's .qmd), not a web download. -->

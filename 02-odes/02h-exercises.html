@@ -8,7 +8,7 @@
 
 <meta name="author" content="Mingyang Lu">
 
-<title>2G. Exercises – Numerical ReciPy</title>
+<title>2H. Exercises – Numerical ReciPy</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -70,7 +70,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../03-phase-plane/03a-nullclines.html" rel="next">
-<link href="../02-odes/02f-bifurcation-curves.html" rel="prev">
+<link href="../02-odes/02g-difference-equations.html" rel="prev">
 <link href="../assets/favicon.svg" rel="icon" type="image/svg+xml">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -152,7 +152,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../02-odes/02a-modeling-gene-circuits.html">Part 2: Ordinary differential equations</a></li><li class="breadcrumb-item"><a href="../02-odes/02g-exercises.html"><span class="chapter-title">2G. Exercises</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../02-odes/02a-modeling-gene-circuits.html">Part 2: Ordinary differential equations</a></li><li class="breadcrumb-item"><a href="../02-odes/02h-exercises.html"><span class="chapter-title">2H. Exercises</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -258,7 +258,12 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../02-odes/02g-exercises.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">2G. Exercises</span></a>
+  <a href="../02-odes/02g-difference-equations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">2G. Difference equations and discrete-time dynamics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../02-odes/02h-exercises.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">2H. Exercises</span></a>
   </div>
 </li>
       </ul>
@@ -598,20 +603,20 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul class="collapse">
-  <li><a href="#g.1-adams-bashforth-method" id="toc-g.1-adams-bashforth-method" class="nav-link active" data-scroll-target="#g.1-adams-bashforth-method">2G.1 Adams-Bashforth method</a></li>
-  <li><a href="#g.2-fourth-order-runge-kutta" id="toc-g.2-fourth-order-runge-kutta" class="nav-link" data-scroll-target="#g.2-fourth-order-runge-kutta">2G.2 Fourth-order Runge-Kutta</a></li>
-  <li><a href="#g.3-hysteresis" id="toc-g.3-hysteresis" class="nav-link" data-scroll-target="#g.3-hysteresis">2G.3 Hysteresis</a></li>
-  <li><a href="#g.4-another-bifurcation" id="toc-g.4-another-bifurcation" class="nav-link" data-scroll-target="#g.4-another-bifurcation">2G.4 Another bifurcation</a></li>
-  <li><a href="#g.5-the-spruce-budworm-model" id="toc-g.5-the-spruce-budworm-model" class="nav-link" data-scroll-target="#g.5-the-spruce-budworm-model">2G.5 The Spruce Budworm model</a></li>
+  <li><a href="#h.1-adams-bashforth-method" id="toc-h.1-adams-bashforth-method" class="nav-link active" data-scroll-target="#h.1-adams-bashforth-method">2H.1 Adams-Bashforth method</a></li>
+  <li><a href="#h.2-fourth-order-runge-kutta" id="toc-h.2-fourth-order-runge-kutta" class="nav-link" data-scroll-target="#h.2-fourth-order-runge-kutta">2H.2 Fourth-order Runge-Kutta</a></li>
+  <li><a href="#h.3-hysteresis" id="toc-h.3-hysteresis" class="nav-link" data-scroll-target="#h.3-hysteresis">2H.3 Hysteresis</a></li>
+  <li><a href="#h.4-another-bifurcation" id="toc-h.4-another-bifurcation" class="nav-link" data-scroll-target="#h.4-another-bifurcation">2H.4 Another bifurcation</a></li>
+  <li><a href="#h.5-the-spruce-budworm-model" id="toc-h.5-the-spruce-budworm-model" class="nav-link" data-scroll-target="#h.5-the-spruce-budworm-model">2H.5 The Spruce Budworm model</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../02-odes/02a-modeling-gene-circuits.html">Part 2: Ordinary differential equations</a></li><li class="breadcrumb-item"><a href="../02-odes/02g-exercises.html"><span class="chapter-title">2G. Exercises</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../02-odes/02a-modeling-gene-circuits.html">Part 2: Ordinary differential equations</a></li><li class="breadcrumb-item"><a href="../02-odes/02h-exercises.html"><span class="chapter-title">2H. Exercises</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-title">2G. Exercises</span></h1>
+<h1 class="title"><span class="chapter-title">2H. Exercises</span></h1>
 </div>
 
 
@@ -634,8 +639,8 @@ window.Quarto = {
 </header>
 
 
-<section id="g.1-adams-bashforth-method" class="level2">
-<h2 class="anchored" data-anchor-id="g.1-adams-bashforth-method">2G.1 Adams-Bashforth method</h2>
+<section id="h.1-adams-bashforth-method" class="level2">
+<h2 class="anchored" data-anchor-id="h.1-adams-bashforth-method">2H.1 Adams-Bashforth method</h2>
 <p>The Adams-Bashforth method is a two-step scheme for integrating a single-variable ODE for <span class="math inline">\(N(t)\)</span>. Each iteration uses two known points, <span class="math inline">\((t_n, N_n)\)</span> and <span class="math inline">\((t_{n+1}, N_{n+1})\)</span>, to compute <span class="math inline">\((t_{n+2}, N_{n+2})\)</span>:</p>
 <p><span class="math display">\[ N_{n+2} = N_{n+1} + \frac{3}{2} h\, f(t_{n+1}, N_{n+1}) - \frac{1}{2} h\, f(t_n, N_n) , \]</span></p>
 <p>where <span class="math inline">\(h = \Delta t\)</span> is the step size. Starting from the initial condition <span class="math inline">\(N_0\)</span>, take one Euler step to obtain <span class="math inline">\(N_1\)</span>, then apply the Adams-Bashforth formula iteratively for <span class="math inline">\(N_2, N_3, \dots\)</span>.</p>
@@ -649,12 +654,12 @@ window.Quarto = {
 <li><p>the CPU time for each step size (for example with <code>microbenchmark</code> in R or <code>timeit</code> in Python).</p></li>
 </ol>
 </section>
-<section id="g.2-fourth-order-runge-kutta" class="level2">
-<h2 class="anchored" data-anchor-id="g.2-fourth-order-runge-kutta">2G.2 Fourth-order Runge-Kutta</h2>
+<section id="h.2-fourth-order-runge-kutta" class="level2">
+<h2 class="anchored" data-anchor-id="h.2-fourth-order-runge-kutta">2H.2 Fourth-order Runge-Kutta</h2>
 <p><a href="../02-odes/02b-numerical-integration.html">Part 2B</a> (Section 2B.6) gives a more accurate integrator, the fourth-order Runge-Kutta method (RK4). Prove the method and determine its order of accuracy in terms of <span class="math inline">\(O(\Delta t)\)</span>.</p>
 </section>
-<section id="g.3-hysteresis" class="level2">
-<h2 class="anchored" data-anchor-id="g.3-hysteresis">2G.3 Hysteresis</h2>
+<section id="h.3-hysteresis" class="level2">
+<h2 class="anchored" data-anchor-id="h.3-hysteresis">2H.3 Hysteresis</h2>
 <p>Consider a circuit with one self-activating gene,</p>
 <p><span class="math display">\[ \frac{dX}{dt} = 10 + 45\frac{X^4}{X^4 + 200^4} - kX . \]</span></p>
 <p>Here we explore <strong>hysteresis</strong>, where the system’s state depends on its history.</p>
@@ -662,14 +667,14 @@ window.Quarto = {
 <p><strong>(2)</strong> Simulate the same circuit while gradually decreasing <span class="math inline">\(k\)</span> from 0.2 to 0.1 over <span class="math inline">\(t_{tot} = 1000\)</span>, starting from the steady state at <span class="math inline">\(k = 0.2\)</span>. Plot <span class="math inline">\(X(t)\)</span>. <em>Hint:</em> adapt the derivative function for uniformly decreasing <span class="math inline">\(k\)</span>.</p>
 <p><strong>(3)</strong> Plot <span class="math inline">\(X(k)\)</span> for the two trajectories together with the bifurcation diagram from <a href="../02-odes/02e-bifurcation.html">Part 2E</a> or <a href="../02-odes/02f-bifurcation-curves.html">Part 2F</a>. Briefly describe what you observe.</p>
 </section>
-<section id="g.4-another-bifurcation" class="level2">
-<h2 class="anchored" data-anchor-id="g.4-another-bifurcation">2G.4 Another bifurcation</h2>
+<section id="h.4-another-bifurcation" class="level2">
+<h2 class="anchored" data-anchor-id="h.4-another-bifurcation">2H.4 Another bifurcation</h2>
 <p>Consider a gene-circuit model related to the one in <a href="../02-odes/02e-bifurcation.html">Part 2E</a>,</p>
 <p><span class="math display">\[ \frac{dX}{dt} = f(X, g) = 10 + g\frac{X^4}{X^4 + 200^4} - 0.15\,X , \]</span></p>
 <p>where <span class="math inline">\(g\)</span> is the control parameter, ranging over <span class="math inline">\((0, 100)\)</span>. Plot the bifurcation diagram of the steady-state <span class="math inline">\(X\)</span> as a function of <span class="math inline">\(g\)</span>, using any method from <a href="../02-odes/02e-bifurcation.html">Part 2E</a> or <a href="../02-odes/02f-bifurcation-curves.html">Part 2F</a>.</p>
 </section>
-<section id="g.5-the-spruce-budworm-model" class="level2">
-<h2 class="anchored" data-anchor-id="g.5-the-spruce-budworm-model">2G.5 The Spruce Budworm model</h2>
+<section id="h.5-the-spruce-budworm-model" class="level2">
+<h2 class="anchored" data-anchor-id="h.5-the-spruce-budworm-model">2H.5 The Spruce Budworm model</h2>
 <p>The spruce budworm, an insect of the spruce-fir forests of the USA and Canada, usually stays at low population levels, but intermittent surges cause severe forest damage. In isolation its intrinsic growth follows the logistic model; predation by birds adds a second term, giving</p>
 <p><span class="math display">\[ \frac{dN}{dt} = rN\left(1 - \frac{N}{K}\right) - \frac{\rho N}{N + A} . \]</span></p>
 <p>Use growth rate <span class="math inline">\(r = 0.2\)</span>, carrying capacity <span class="math inline">\(K = 1000\)</span>, and predation half-saturation <span class="math inline">\(A = 250\)</span>.</p>
@@ -678,7 +683,7 @@ window.Quarto = {
 <p><strong>(3) Bifurcation diagram.</strong> Explore the bifurcation diagram by varying the predation parameter <span class="math inline">\(\rho\)</span> from 0 to 100. Plot the steady-state <span class="math inline">\(N\)</span> against <span class="math inline">\(\rho\)</span> and mark the stable and unstable branches. Aim for a diagram like the one below; you may use any numerical method from Parts 2E and 2F.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="images/02g/budworm-bifurcation.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
+<p><img src="images/02h/budworm-bifurcation.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
 </figure>
 </div>
 <p><strong>(4) Parameter-varying dynamics.</strong> Now let <span class="math inline">\(\rho\)</span> oscillate in time as a sinusoid rather than staying constant. The code below generates such a <span class="math inline">\(\rho(t)\)</span> signal (oscillation period 50, mean 60, amplitude 20).</p>
@@ -696,7 +701,7 @@ window.Quarto = {
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="02g-exercises_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:55.0%"></p>
+<p><img src="02h-exercises_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:55.0%"></p>
 </figure>
 </div>
 </div>
@@ -720,7 +725,7 @@ window.Quarto = {
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="02g-exercises_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:55.0%"></p>
+<p><img src="02h-exercises_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:55.0%"></p>
 </figure>
 </div>
 </div>
@@ -803,7 +808,7 @@ window.Quarto = {
      (shared concept text, shared post-Python discussion) is never tagged, so it stays
      visible in every mode. The choice persists across chapters via localStorage. The
      switch appears on any genuinely dual-language page (both languages present),
-     including exercises pages that carry paired implementations (1D, 2G); pages with
+     including exercises pages that carry paired implementations (1D, 2H); pages with
      no `.impl` headings, or only one language, get no switch. Single-language SOURCE
      copies for practice are a separate, local mechanism (scripts/make-lang-variants.py
      writes them beside each chapter's .qmd), not a web download. -->
@@ -1375,8 +1380,8 @@ document.addEventListener("DOMContentLoaded", function () {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../02-odes/02f-bifurcation-curves.html" class="pagination-link" aria-label="2F. Bifurcation: finding curves">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">2F. Bifurcation: finding curves</span></span>
+      <a href="../02-odes/02g-difference-equations.html" class="pagination-link" aria-label="2G. Difference equations and discrete-time dynamics">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">2G. Difference equations and discrete-time dynamics</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

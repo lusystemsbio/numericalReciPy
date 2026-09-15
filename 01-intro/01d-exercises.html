@@ -277,7 +277,12 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../02-odes/02g-exercises.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">2G. Exercises</span></a>
+  <a href="../02-odes/02g-difference-equations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">2G. Difference equations and discrete-time dynamics</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../02-odes/02h-exercises.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">2H. Exercises</span></a>
   </div>
 </li>
       </ul>
@@ -703,28 +708,36 @@ window.Quarto = {
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pdb_to_dataframe(pdb_id):</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    pdbl <span class="op">=</span> PDB.PDBList()</span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    pdb_file_path <span class="op">=</span> pdbl.retrieve_pdb_file(pdb_id, pdir<span class="op">=</span>tempfile.gettempdir(), file_format<span class="op">=</span><span class="st">"pdb"</span>)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    pdb_parser <span class="op">=</span> PDB.PDBParser(QUIET<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    structure <span class="op">=</span> pdb_parser.get_structure(pdb_id, pdb_file_path)</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    atom_data <span class="op">=</span> []</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> model <span class="kw">in</span> structure:</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> chain <span class="kw">in</span> model:</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> residue <span class="kw">in</span> chain:</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> atom <span class="kw">in</span> residue:</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>                    atom_data.append({</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"atom_name"</span>: atom.get_name(),</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"residue_name"</span>: residue.resname,</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"chain_id"</span>: chain.<span class="bu">id</span>,</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"residue_number"</span>: residue.<span class="bu">id</span>[<span class="dv">1</span>],</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"x"</span>: atom.coord[<span class="dv">0</span>],</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"y"</span>: atom.coord[<span class="dv">1</span>],</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"z"</span>: atom.coord[<span class="dv">2</span>],</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"b"</span>: atom.bfactor,</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>                    })</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.DataFrame(atom_data)</span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>coord <span class="op">=</span> pdb_to_dataframe(<span class="st">"7l3u"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> pdb_file_path <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Bio.PDB returns None when the download fails, and passing that on gives the</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># unhelpful "'NoneType' object has no attribute 'readlines'" further down.</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">RuntimeError</span>(</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"Could not download PDB entry </span><span class="sc">{</span>pdb_id<span class="sc">}</span><span class="ss">. If you installed Python from "</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="st">"python.org on macOS, run its 'Install Certificates.command' once (see the "</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>            <span class="st">"README prerequisites), since without it every HTTPS download fails; "</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>            <span class="st">"otherwise check your network connection."</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    pdb_parser <span class="op">=</span> PDB.PDBParser(QUIET<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    structure <span class="op">=</span> pdb_parser.get_structure(pdb_id, pdb_file_path)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    atom_data <span class="op">=</span> []</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> model <span class="kw">in</span> structure:</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> chain <span class="kw">in</span> model:</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> residue <span class="kw">in</span> chain:</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> atom <span class="kw">in</span> residue:</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>                    atom_data.append({</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"atom_name"</span>: atom.get_name(),</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"residue_name"</span>: residue.resname,</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"chain_id"</span>: chain.<span class="bu">id</span>,</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"residue_number"</span>: residue.<span class="bu">id</span>[<span class="dv">1</span>],</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"x"</span>: atom.coord[<span class="dv">0</span>],</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"y"</span>: atom.coord[<span class="dv">1</span>],</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"z"</span>: atom.coord[<span class="dv">2</span>],</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"b"</span>: atom.bfactor,</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>                    })</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.DataFrame(atom_data)</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>coord <span class="op">=</span> pdb_to_dataframe(<span class="st">"7l3u"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Downloading PDB structure '7l3u'...</code></pre>
+<pre><code>Structure exists: '/var/folders/fl/vk145ql53y77f9g5x0lpbc080000gn/T/pdb7l3u.ent' </code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>coord.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -922,7 +935,7 @@ Stirling, James. 1730. <em>Methodus Differentialis: Sive Tractatus de Summatione
      (shared concept text, shared post-Python discussion) is never tagged, so it stays
      visible in every mode. The choice persists across chapters via localStorage. The
      switch appears on any genuinely dual-language page (both languages present),
-     including exercises pages that carry paired implementations (1D, 2G); pages with
+     including exercises pages that carry paired implementations (1D, 2H); pages with
      no `.impl` headings, or only one language, get no switch. Single-language SOURCE
      copies for practice are a separate, local mechanism (scripts/make-lang-variants.py
      writes them beside each chapter's .qmd), not a web download. -->
